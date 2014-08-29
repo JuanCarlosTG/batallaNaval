@@ -1,0 +1,253 @@
+funcion principal ;
+	tiempoDormir.segundos = 1;
+    	tiempoDormir.nanosegundos = 0;
+    	tiempoDormir2.segundos = 0;
+    	tiempoDormir2.nanosegundos = 300000000;
+    	tiempoDormir3.segundos = 0;
+    	tiempoDormir3.nanosegundos = 500000000;
+	secionIniciada=0;
+	initscr();(Iniciar modo ncurses)
+	startcolor();(Iniciar modo colores)
+	raw();
+	getmaxyx();
+	InicioEspectacular();	
+	repetir 
+		Salida <- Bienvenido
+		tipo <- Entrada	
+		refresh();
+		clear();
+	hasta que tipo > 1 y tipo < 0
+	repetir 
+		Salida <- Bienvenido
+		Salida <- opcion 1
+		Salida <- opacion 2
+		opcionPrin <- Enttrada
+	hasta que opcionPrin < 1 o opcionPrin > 2
+	si opcionPrin == 1 entonces 
+		MenuPrincipal();
+	si no 
+	endwin();
+	close(idsocket);
+        close(idcliente);
+fin funcion principal
+
+
+
+procedimiento IniciarSecion
+    jugadores <- desdearchivo;
+    structura judador   temp,aux;
+    long tamanio;
+    int seguir <- 0;
+    clear();
+    Salida <- Ingresar Usuario
+    tempa.nombre <- Entrada
+    Salida <- Ingresar Contraseña
+    tempa.pass <- Entrada
+    tamanio = ftell(jugadores);
+        para i<-0 hasta i<tamanio hacer
+            jugadores <-leerarchivo
+            si strcmp(aux.nombre, temp.nombre) == 0 entonces
+                si strcmp(aux.pass, temp.pass) == 0 entonces
+                    seguir <- 1;
+                    i<-i+1;
+        fin para
+
+        clear();
+    si seguir == 1 entonces
+        Salida <- Has entrado correctamente
+        sesionIniciada <- 1;
+        strcpy(jugador1.nombre, temp.nombre);
+        strcpy(jugador1.pass, temp.pass);
+        refresh();
+        fclose(jugadores);
+        sleep();
+        MenuPrincipal();
+    si no entonces
+        Salida <- No has entrado correctamente
+        refresh();
+        sleep();
+        fclose(jugadores);
+        MenuPrincipal();
+fin procedimiento
+
+
+procedimiento IniciaComunicacion
+    si tipo == 1 entonces
+        direccion.sin_family <- AF_INET;
+        direccion.sin_port <- htons(PUERTO);
+        direccion.sin_addr.s_addr <- htonl(INADDR_ANY);
+        si idsocket = socket(AF_INET, SOCK_STREAM, 0)) == -1 entonces
+            Salida <- Error
+            exit(1);
+        si bind(idsocket, (struct sockaddr*) &direccion, sizeof (direccion)) == -1 entonces
+            Salida <- Error
+            exit(1);
+        si listen(idsocket, 2) == -1 entonces
+            Salida <- Error
+            exit(1);
+        wclear(stdscr);
+        Salida<- Esperando conexion
+        wrefresh(stdscr);
+        lcliente <- sizeof (cliente);
+        idcliente <- accept(idsocket, (struct sockaddr*) &cliente, &lcliente); //"accept" es una función bloqueante
+        si idcliente == -1 entonces
+            Salida <- Error
+            exit(1);
+    si no entonces
+        direccion.sin_family <- AF_INET;
+        direccion.sin_port <- htons(PUERTO);
+        inet_aton(IP, (struct in_addr*) &(direccion.sin_addr.s_addr));
+        si idsocket = socket(AF_INET, SOCK_STREAM, 0)) == -1 entonces
+            Salida <- Error
+            exit(1);
+        wclear(stdscr);
+        Salida<- conectandose
+        wrefresh(stdscr);
+        sleep();
+        si connect(idsocket, (void *) &direccion, sizeof (direccion)) == -1 entonces
+            Salida <- Error
+            exit(1);
+fin procedimiento
+
+procedimiento ValidarTiro
+    si tipo==1 entonces
+        startcolor();
+        si matrizOponente[x][y] == 0 entonces
+            parpadearventana();
+            Salida <- Has fallado
+        si no entonces
+            parpadearventana();
+            Salida <- Le has dado a un sumarino
+    si no entonces
+        si tablero[x][y] == 0 entonces
+            parpadearventana();
+            Salida <- EL enemigo a fallado
+        si no entonces
+            parpadearventana();
+            Salida <- Le han dado a  un submarino
+fin procedimiento
+
+
+procedimiento PintarSubmarinos
+    para i <- 0 hasta i < 5 entonces
+            para j <- 0 hasta j < 7 entonces
+                si tablero[i][j] == 1
+                    pintartablero;
+                    wrefresh(mi_tablero[i][j]);
+                    j<- j+1
+            fin para
+        i <- i;
+    fin para
+fin procedimiento
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+procedimiento resolvecuaciones
+	int incognitas,f,c,cont;
+	double **matriz;
+	incognitas <- Entrada;
+	matriz = Aparta_Memoria_Matriz(incognitas+1,incognitas);
+	Captura_Matriz( matriz, incognitas);
+	Eliminacion_Gaussiana( matriz,incognitas);
+	cont=1;
+	c=incognitas;
+	f=0;
+	mientras incognitas > 0
+		Salida <- cont,matriz[c][f];
+		incognitas--;
+		cont++;
+		f++;
+	fin mientras
+fin procedimiento
+
+procedimiento Captura_Matriz
+	int i,j;
+	i<-0;
+	mientras i<c
+		j=0;
+		mientras j<c+1
+			M[j][i] <- Entrada
+			j++;
+		fin mientras
+		i++;
+	fin mientras
+fin procedimiento
+
+procedimiento Aparta_Memoria
+	int i;
+	double **matriz;
+	matriz=malloc(sizeof(double*)*c);
+	i=0;
+	mientras i<c
+		matriz[i]=malloc(sizeof(double)*f);
+		i++;
+	fin mientras
+fin procedimiento
+
+procedimiento Eliminacion_Gaussiana
+	double aux,aux2;
+	int f1,f2,f4,f3,c1,c2,c3,c4,t,q;
+	c1=0;
+	mientras c1<=variables
+		f1=variables-2
+		mientras f1>=0
+			M[c1][f1]+=M[c1][f1+1];
+			f1--;
+		fin mientras
+		c1++;		
+	fin mientras
+	q=1;
+	f1=0;
+	c1=0;
+	mientras f1<variables
+		f2=f1;
+		mientras f2<variables;
+			aux = M[c1][f2];
+			c2=0;
+			mientras c2<=variables
+				M[c2][f2]/=aux;
+				si (f2+1)<variables
+				entonces M[c2][f2+1]+=M[c2][f2];
+				c2++;
+			fin mientras
+			c3=c1;
+			mientras c3<=variables
+				t=variables;
+				mientras t>q
+					M[c3][t-1]-=M[c3][t-2];
+					t--;
+				fin mientras	
+				c3++;			
+			fin mientras
+			f3=f4=f1;
+			t=1;
+			mientras f4>0
+				aux2=M[c1][f1-t];
+				c4=c1;
+				mientras c4<=variables
+					M[c4][f3]*=aux2;
+					M[c4][f3-t]-=M[c4][f3];
+					M[c4][f3]/=aux2;
+					c4++;
+				fin mientras
+				f4--;
+				t++;
+			fin mientras
+			f2++;
+		fin mientras
+		f1++;
+		c1++;
+		q++;
+	fin mientras
+fin procedimiento
